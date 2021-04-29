@@ -2,7 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-function Square(props){
+interface SquareProps {
+  value: 'X'|'O'|null,
+  onClick: ()=>void
+}
+
+function Square(props: SquareProps){
   return (
     <button className="square" onClick={props.onClick} >
       {props.value}
@@ -10,12 +15,16 @@ function Square(props){
   )
 }
 
-function Board(props){
-  const renderSquare = (number) =>{
+interface BoardProps {
+  squares: Array<'X'|'O'|null>,
+  onClick: (i: number)=>void
+}
+function Board(props: BoardProps){
+  const renderSquare = (i: number) =>{
     return (
       <Square
-        value={props.squares[number]}
-        onClick={()=> props.onClick(number)}
+        value={props.squares[i]}
+        onClick={()=> props.onClick(i)}
       />
       )
   }
@@ -42,9 +51,18 @@ function Board(props){
 
 }
 
+type History = {
+  squares: Array<'X'|'O'|null>
+}
+interface GameState {
+  history: History[],
+  stepNumber: number,
+  xIsNext: Boolean
+}
 //親Component
-class Game extends React.Component {
-  constructor(props){
+// React.Componentの引数は1つめがprops, 2つ目がStateの型
+class Game extends React.Component<{}, GameState> {
+  constructor(props: {}){
     super(props)
     this.state = {
       history: [{
@@ -54,7 +72,7 @@ class Game extends React.Component {
       xIsNext: true
     }
   }
-  handleClick(i){
+  handleClick(i: number){
     const history = this.state.history.slice(0, this.state.stepNumber + 1)
     const current = history[history.length - 1]
     const squares = current.squares.slice()
@@ -70,7 +88,7 @@ class Game extends React.Component {
       xIsNext: !this.state.xIsNext
     })
   }
-  jumpTo(step){
+  jumpTo(step: number){
     this.setState({
       stepNumber: step,
       xIsNext: (step%2) === 0
@@ -130,7 +148,7 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
-function calculateWinner(squares) {
+function calculateWinner(squares:Array<'X'|'O'|null>) {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -149,4 +167,3 @@ function calculateWinner(squares) {
   }
   return null;
 }
-
